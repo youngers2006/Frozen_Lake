@@ -2,13 +2,14 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import gymnasium as gym
+from tqdm import tqdm
 
 env = gym.make('FrozenLake-v1', is_slippery=True)
 num_states = env.observation_space.n
 num_actions = env.action_space.n
 
 seed = 42
-episodes = 1000
+episodes = 5000
 epsilon = 1.0
 ep_decay = 0.999
 gamma = 0.99
@@ -37,8 +38,9 @@ Q = jax.random.uniform(key=key,shape=(num_states,num_actions), minval=0.0, maxva
 E = jnp.zeros(shape=(num_states,num_actions))
 
 reward_list = []
+episode_num = 0
 
-for episode in range(episodes):
+for episode in tqdm(range(episodes), desc=f"episode {episode_num}/{episodes}", leave=False):
     E = jnp.zeros_like(E)
     initial_observation, info = env.reset(seed=seed)
     terminated = False
@@ -72,6 +74,7 @@ for episode in range(episodes):
     reward_list.append(total_reward)
     epsilon = epsilon * ep_decay
     seed = seed + episode
+    episode_num = episode
 
 plt.plot(reward_list)
 
