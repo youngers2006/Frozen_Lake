@@ -9,9 +9,9 @@ num_states = env.observation_space.n
 num_actions = env.action_space.n
 
 seed = 42
-episodes = 5000
+episodes = 100
 epsilon = 1.0
-ep_decay = 0.999
+ep_decay = 0.9
 gamma = 0.99
 lambda_ = 0.9
 Learn_Rate = 0.05
@@ -38,9 +38,8 @@ Q = jax.random.uniform(key=key,shape=(num_states,num_actions), minval=0.0, maxva
 E = jnp.zeros(shape=(num_states,num_actions))
 
 reward_list = []
-episode_num = 0
 
-for episode in tqdm(range(episodes), desc=f"episode {episode_num}/{episodes}", leave=False):
+for episode in tqdm(range(episodes), leave=False):
     E = jnp.zeros_like(E)
     initial_observation, info = env.reset(seed=seed)
     terminated = False
@@ -74,16 +73,16 @@ for episode in tqdm(range(episodes), desc=f"episode {episode_num}/{episodes}", l
     reward_list.append(total_reward)
     epsilon = epsilon * ep_decay
     seed = seed + episode
-    episode_num = episode
 
 plt.plot(reward_list)
+plt.show()
 
 
 reward_list_test = []
 
 env = gym.make('FrozenLake-v1', is_slippery=True, render_mode='human')
 
-rewinds = input('number of times to watch')
+rewinds = int(input('number of times to watch'))
 
 for episode in range(rewinds):
     initial_observation, info = env.reset(seed=seed)
@@ -105,6 +104,9 @@ for episode in range(rewinds):
         action = action_prime
 
     reward_list_test.append(total_reward)
+
+plt.plot(reward_list_test)
+plt.show()
 
 
 
