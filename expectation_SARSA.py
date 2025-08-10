@@ -26,7 +26,7 @@ class Agent:
 
         return action
 
-    def update(self, state, state_, reward, action, action_):
+    def update_Q(self, state, state_, reward, action, action_):
         P_greedy = self.epsilon / self.num_actions
         P_non_greedy = 1 - self.epsilon + self.epsilon / self.num_actions
         policy = np.full(shape=(self.num_actions), fill_value=P_non_greedy)
@@ -34,8 +34,10 @@ class Agent:
         TD_error = reward + np.sum(policy * self.Q[state_,self.action_space]) - self.Q[state,action]
         self.Q[state,action] = self.Q[state,action] + self.alpha * TD_error
 
-        
+    def get_Q(self):
+        return self.Q
 
+        
 env = gym.make('FrozenLake-v1', is_slippery=True)
 num_states = env.observation_space.n
 num_actions = env.action_space.n
