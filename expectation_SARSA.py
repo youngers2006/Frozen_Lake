@@ -1,6 +1,6 @@
 import gymnasium as gym
 import numpy as np
-import tqdm
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 class Agent:
@@ -62,7 +62,7 @@ agent = Agent(
     num_states
 )
 
-for episode in range(num_episodes):
+for episode in tqdm(range(num_episodes), leave=False):
     episode_reward = 0
     state, info = env.reset(seed=seed)
     terminated = False
@@ -84,6 +84,7 @@ for episode in range(num_episodes):
 
     agent.decay_ep(ep_decay_rate)
     reward_list.append(episode_reward)
+    seed = seed + episode
 
 plt.plot(reward_list)
 plt.show()

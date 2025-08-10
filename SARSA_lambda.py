@@ -36,8 +36,6 @@ class Agent:
     def decay_epsilon(self, decay_rate):
         self.epsilon = self.epsilon * decay_rate
 
-
-
 env = gym.make('FrozenLake-v1', is_slippery=True)
 num_states = env.observation_space.n
 num_actions = env.action_space.n
