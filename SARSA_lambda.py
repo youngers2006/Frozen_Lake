@@ -41,7 +41,7 @@ num_states = env.observation_space.n
 num_actions = env.action_space.n
 
 seed = 42
-episodes = 100
+episodes = 1000
 epsilon_I = 1.0
 epsilon_final = 0.01
 ep_decay = (epsilon_I - epsilon_final) / (episodes - 20)
