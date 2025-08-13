@@ -89,10 +89,10 @@ for episode in tqdm(range(episodes), leave=False):
         agent.update_model(state, action, reward, state_, terminated)
         agent.planning(planning_steps)
         episode_reward += reward
+        state = state_
+        action = action_
     reward_list.append(episode_reward)
     agent.decay_epsilon(ep_decay)
-    state = state_
-    action = action_
     seed = seed + 1
 
 plt.plot(reward_list)
@@ -102,20 +102,9 @@ bin_size = 20
 bins = []
 for i in range(len(reward_list) // 20):
     idx = i * 20
-    np_rew = np.array(reward_list[i:(i + bin_size)]) 
-    bin_i = np.sum(np_rew)
+    np_rew = reward_list[i:(i + bin_size)]
+    bin_i = sum(np_rew)
     bins.append(bin_i)
 
 plt.plot(bins)
 plt.show()
-
-
-
-
-
-
-        
-
-    
-
-
