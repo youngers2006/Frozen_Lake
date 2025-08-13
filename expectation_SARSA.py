@@ -14,36 +14,41 @@ class Agent:
         self.action_space = action_space
 
     def select_action(self, state):
-        P_greedy = self.epsilon / self.num_actions
-        P_non_greedy = 1 - self.epsilon + self.epsilon / self.num_actions
+        P_non_greedy = self.epsilon / self.num_actions
+        P_greedy = 1 - self.epsilon + self.epsilon / self.num_actions
 
         best_a = np.argmax(self.Q[state,:])
 
-        probabilities = np.full(P_non_greedy)
-        probabilities[best_a] += P_greedy
+        probabilities = np.full(shape=(self.num_actions), fill_value=P_non_greedy)
+        probabilities[best_a] = P_greedy
 
-        action = np.random.choice(a=self.action_space, p=probabilities)
+        action = self.action_space.sample(probability=probabilities)
 
         return action
 
     def update_Q(self, state, state_, reward, action, action_):
-        P_greedy = self.epsilon / self.num_actions
-        P_non_greedy = 1 - self.epsilon + self.epsilon / self.num_actions
-        policy = np.full(shape=(self.num_actions), fill_value=P_non_greedy)
-        policy[action] = P_greedy
+        best_next_action = np.argmax(self.Q[state_, :])
+        prob_non_greedy = self.epsilon / self.num_actions
+        prob_greedy = 1 - self.epsilon + prob_non_greedy
         
-        TD_error = reward + np.sum(policy * self.Q[state_,self.action_space]) - self.Q[state,action]
-        self.Q[state,action] = self.Q[state,action] + self.alpha * TD_error
+        policy_s_prime = np.full(self.num_actions, fill_value=prob_non_greedy)
+        policy_s_prime[best_next_action] = prob_greedy
+
+        expected_Q = np.sum(policy_s_prime * self.Q[state_, :])
+        td_target = reward + self.gamma * expected_Q
+        td_error = td_target - self.Q[state, action]
+
+        self.Q[state, action] = self.Q[state, action] + self.alpha * td_error
     
     def decay_ep(self, decay_rate):
-        self.epsilon = self.epsilon * decay_rate
+        self.epsilon = max(epsilon_final, self.epsilon - decay_rate)
     
 # Hyper Params
-alpha = 0.05
+alpha = 0.1
 gamma = 0.99
 epsilon_I = 1.0
-epsilon_final = 0.01
-num_episodes = 1000
+epsilon_final = 0.0001
+num_episodes = 15000
 ep_decay_rate = (epsilon_I - epsilon_final) / num_episodes
 seed = 42
 

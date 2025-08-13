@@ -30,24 +30,24 @@ class Agent:
     def update_Q_E(self, state, state_, action, action_, reward):
         self.E_Trace[state, action] += 1
         TD_error = reward + gamma * self.Q[state_, action_] - self.Q[state, action]
-        self.Q = self.Q + self.alpha * self.E * TD_error
-        self.E = self.gamma * self.lambda_ * self.E
+        self.Q = self.Q + self.alpha * self.E_Trace * TD_error
+        self.E_Trace = self.gamma * self.lambda_ * self.E_Trace
 
     def decay_epsilon(self, decay_rate):
-        self.epsilon = self.epsilon * decay_rate
+        self.epsilon = max(epsilon_final, self.epsilon - decay_rate)
 
 env = gym.make('FrozenLake-v1', is_slippery=True)
 num_states = env.observation_space.n
 num_actions = env.action_space.n
 
 seed = 42
-episodes = 1000
+episodes = 10000
 epsilon_I = 1.0
-epsilon_final = 0.01
-ep_decay = (epsilon_I - epsilon_final) / (episodes - 20)
-gamma = 0.99
-lambda_ = 0.9
-Learn_Rate = 0.05
+epsilon_final = 0.0001
+ep_decay = (epsilon_I - epsilon_final) / (episodes - 1000)
+gamma = 0.999
+lambda_ = 0.7
+Learn_Rate = 0.2
 
 reward_list = []
 agent = Agent(
