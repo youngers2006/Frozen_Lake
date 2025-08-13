@@ -59,11 +59,40 @@ epsilon_final = 0.01
 ep_decay = (epsilon_I - epsilon_final) / (episodes - 20)
 gamma = 0.99
 Learn_Rate = 0.05
+action_space = env.action_space
+planning_steps = 50
 
 reward_list = []
 agent = Agent(
-
+    epsilon_I,
+    Learn_Rate,
+    gamma,
+    num_states,
+    num_actions,
+    action_space
 )
+
+for episode in range(episodes):
+    state, info = env.reset(seed=seed)
+    action = agent.select_action(state)
+    episode_reward = 0
+    terminated = False
+    truncated = False
+    while not (terminated or truncated):
+        state_, reward, terminated, truncated, info = env.step(action)
+        action_ = agent.select_action(state_)
+        agent.update_Q(state,state_,action,action_,reward)
+        agent.update_model(state,action,reward, state_)
+        agent.planning(planning_steps)
+        episode_reward += reward
+    reward_list.append(episode_reward)
+    agent.decay_epsilon(ep_decay)
+    state = state_
+    action = action_
+
+
+
+
 
 
         
