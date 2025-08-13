@@ -95,6 +95,7 @@ for episode in range(episodes):
         action_ = agent.select_action(state_)
         agent.update_Q(state,state_,action,action_,reward)
         agent.update_model(state,action,reward, state_)
+        agent.update_visit_list(state,action)
         agent.planning(planning_steps)
         episode_reward += reward
     reward_list.append(episode_reward)
