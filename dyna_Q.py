@@ -16,23 +16,34 @@ class Agent:
             high=0.01, 
             size=(num_s,num_a)
         )
-        self.model = np.full(
-            shape=(num_s,num_a),
-            fill_value=None
+        self.model = np.zeros(
+            shape=(num_s,num_a,2)
         )
-        self.times_visited = np.zeros(shape=(num_s,num_a))
+        self.visits = np.zeros(shape=(num_s, num_a))
 
     def update_model(self, state, action, reward, state_):
         new_results = np.array([reward, state_])
-        self.model[state, action] = np.append(self.model[state, action], new_results, axis=1)
-        self.times_visited[state,action] += 1
+        if self.visits[state,action] == 0:
+            self.model[state,action,0] = new_results[0]
+            self.model[state,action,1] = new_results[1]
+        else:
+            self.model[state, action] = np.append(self.model[state, action], new_results, axis=1)
+
+    def update_visit_list(self, state, action):
+        if np.sum(self.visits) == 0:
+            self.visit_list = np.array([state, action])
+            self.visits[state,action] += 1
+        else:
+            self.visit_list = np.append(self.visit_list, np.array([state, action]), axis=1)
+            self.visits[state,action] += 1
+
 
     def update_Q(self, state, state_, action, action_, reward):
         TD_error = reward + self.gamma * np.max(self.Q[state_, :]) - self.Q[state, action]
         self.Q[state,action] = self.Q[state,action] + self.alpha * TD_error
 
     def select_action(self, state):
-        if np.random.uniform(low=0.0,high=1.0,size=(1,0)) >= self.epsilon:
+        if np.random.uniform(low=0.0,high=1.0,size=(1,)) >= self.epsilon:
             action = np.argmax(self.Q[state,:])
         else:
             action = self.action_space.sample()
@@ -43,8 +54,8 @@ class Agent:
     
     def planning(self, num_iterations):
         for n in range(num_iterations):
-            state = np.choose(choices=range(num_states)) # need to correct, get from all sampled model states
-            action = np.choose(choices=)
+            state = np.random.choice(self.visit_list[:,0]) # need to correct, get from all sampled model states
+            action = np.random.choice(self.visit_list[:,1])
             reward, state_ = self.model[state,action]
             TD_error = reward + self.gamma * np.max(self.Q[state_,:]) - self.Q[state,action]
             self.Q[state,action] = self.Q[state,action] + self.alpha * TD_error
