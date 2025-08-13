@@ -26,7 +26,7 @@ class Agent:
 
         return action
 
-    def update_Q(self, state, state_, reward, action, action_):
+    def update_Q(self, state, state_, reward, action, terminated):
         best_next_action = np.argmax(self.Q[state_, :])
         prob_non_greedy = self.epsilon / self.num_actions
         prob_greedy = 1 - self.epsilon + prob_non_greedy
@@ -35,7 +35,11 @@ class Agent:
         policy_s_prime[best_next_action] = prob_greedy
 
         expected_Q = np.sum(policy_s_prime * self.Q[state_, :])
-        td_target = reward + self.gamma * expected_Q
+        if terminated:
+            td_target = reward
+        else:
+            td_target = reward + self.gamma * expected_Q
+
         td_error = td_target - self.Q[state, action]
 
         self.Q[state, action] = self.Q[state, action] + self.alpha * td_error
@@ -82,7 +86,7 @@ for episode in tqdm(range(num_episodes), leave=False):
             state_,
             reward,
             action,
-            action_
+            terminated
         )
         state = state_
         action = action_

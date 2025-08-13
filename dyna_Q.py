@@ -97,14 +97,3 @@ for episode in tqdm(range(episodes), leave=False):
 
 plt.plot(reward_list)
 plt.show()
-
-bin_size = 20
-bins = []
-for i in range(len(reward_list) // 20):
-    idx = i * 20
-    np_rew = reward_list[i:(i + bin_size)]
-    bin_i = sum(np_rew)
-    bins.append(bin_i)
-
-plt.plot(bins)
-plt.show()

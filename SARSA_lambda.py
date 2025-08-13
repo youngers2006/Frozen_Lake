@@ -27,9 +27,15 @@ class Agent:
             action = self.action_space.sample()
         return action
 
-    def update_Q_E(self, state, state_, action, action_, reward):
+    def update_Q_E(self, state, state_, action, action_, reward, terminated):
         self.E_Trace[state, action] += 1
-        TD_error = reward + gamma * self.Q[state_, action_] - self.Q[state, action]
+
+        if terminated:
+            td_target = reward
+        else:
+            td_target = reward + gamma * self.Q[state_, action_]
+
+        TD_error = td_target - self.Q[state, action]
         self.Q = self.Q + self.alpha * self.E_Trace * TD_error
         self.E_Trace = self.gamma * self.lambda_ * self.E_Trace
 
@@ -77,7 +83,8 @@ for episode in tqdm(range(episodes), leave=False):
             state_,
             action,
             action_,
-            reward
+            reward,
+            terminated
         )
 
         state = state_
